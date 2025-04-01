@@ -137,7 +137,7 @@ const MoodChatbot: React.FC = () => {
         {
           id: 'tic-tac-toe',
           title: 'Tic-tac-toe',
-          reason: 'Simple rules, quick games - no added complexity when you're stressed.',
+          reason: "Simple rules, quick games - no added complexity when you're stressed.",
         }
       );
     } else {
