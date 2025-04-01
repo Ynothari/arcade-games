@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Dice from '../Dice';
 import { Button } from '../ui/button';
@@ -37,6 +36,7 @@ const SnakeLadder: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [isAIMode, setIsAIMode] = useState(true);
   const [winner, setWinner] = useState<Player | null>(null);
+  const [isTokenMoving, setIsTokenMoving] = useState(false);
   
   // Snakes - head to tail
   const snakes: Snake[] = [
@@ -68,7 +68,7 @@ const SnakeLadder: React.FC = () => {
 
   // AI player's turn
   useEffect(() => {
-    if (isAIMode && currentPlayerIndex === 1 && !gameOver) {
+    if (isAIMode && currentPlayerIndex === 1 && !gameOver && !isTokenMoving && !isRolling) {
       // AI player's turn - delay for better user experience
       const timer = setTimeout(() => {
         handleDiceRoll(Math.floor(Math.random() * 6) + 1);
@@ -76,22 +76,34 @@ const SnakeLadder: React.FC = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [currentPlayerIndex, isAIMode, gameOver]);
+  }, [currentPlayerIndex, isAIMode, gameOver, isTokenMoving, isRolling]);
 
   // Function to handle dice roll
   const handleDiceRoll = (value: number) => {
-    if (isRolling || gameOver) return;
+    if (isRolling || gameOver || isTokenMoving) return;
     
     setIsRolling(true);
     setDiceValue(value);
     
+    setTimeout(() => {
+      movePlayer(value);
+      setIsRolling(false);
+    }, 800);
+  };
+
+  const movePlayer = (steps: number) => {
+    setIsTokenMoving(true);
+    
     const currentPlayer = players[currentPlayerIndex];
-    let newPosition = currentPlayer.position + value;
+    let newPosition = currentPlayer.position + steps;
     
     // Ensure we don't exceed the board
     if (newPosition > totalCells) {
       toast.info("You need exact number to win!");
       newPosition = currentPlayer.position;
+      setIsTokenMoving(false);
+      setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
+      return;
     }
     
     // Check if landed on snake head
@@ -131,8 +143,8 @@ const SnakeLadder: React.FC = () => {
     // Next player's turn
     setTimeout(() => {
       setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
-      setIsRolling(false);
-    }, 1000);
+      setIsTokenMoving(false);
+    }, 1200);
   };
 
   const resetGame = () => {
@@ -303,11 +315,15 @@ const SnakeLadder: React.FC = () => {
             }`}>
               <div className={`game-token ${players[currentPlayerIndex].color}`}></div>
               <span className="font-medium">{players[currentPlayerIndex].name}</span>
+              {isTokenMoving && <span className="text-xs ml-auto">Moving...</span>}
             </div>
           </div>
           
           <div className="flex justify-center mb-2">
-            <Dice onRoll={handleDiceRoll} disabled={isRolling || gameOver || (isAIMode && currentPlayerIndex === 1)} />
+            <Dice 
+              onRoll={handleDiceRoll} 
+              disabled={isRolling || gameOver || isTokenMoving || (isAIMode && currentPlayerIndex === 1)} 
+            />
           </div>
           
           {diceValue > 0 && (

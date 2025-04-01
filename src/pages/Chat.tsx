@@ -2,7 +2,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MoodChatbot from '../components/MoodChatbot';
+import GameAssistant from '../components/MoodChatbot';
 
 const Chat: React.FC = () => {
   return (
@@ -11,7 +11,7 @@ const Chat: React.FC = () => {
       
       <main className="flex-grow py-8 px-4">
         <div className="container mx-auto max-w-2xl">
-          <h1 className="text-3xl font-bold mb-8 text-center">Mood Match Assistant</h1>
+          <h1 className="text-3xl font-bold mb-8 text-center">Game Assistant</h1>
           
           <div className="mb-6 text-center">
             <p className="text-gray-600">
@@ -19,7 +19,7 @@ const Chat: React.FC = () => {
             </p>
           </div>
           
-          <MoodChatbot />
+          <GameAssistant />
         </div>
       </main>
       

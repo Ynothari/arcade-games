@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 
@@ -17,11 +16,11 @@ interface GameRecommendation {
   reason: string;
 }
 
-const MoodChatbot: React.FC = () => {
+const GameAssistant: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your MoodMatch assistant. How are you feeling today?",
+      text: "Hello! I'm your Game Assistant. How are you feeling today?",
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -167,7 +166,7 @@ const MoodChatbot: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
       <div className="bg-game-primary p-4 text-white">
-        <h2 className="font-bold text-lg">MoodMatch Assistant</h2>
+        <h2 className="font-bold text-lg">Game Assistant</h2>
         <p className="text-sm opacity-80">I'll recommend games based on your mood</p>
       </div>
       
@@ -231,4 +230,4 @@ const MoodChatbot: React.FC = () => {
   );
 };
 
-export default MoodChatbot;
+export default GameAssistant;

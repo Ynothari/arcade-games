@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Dice from '../Dice';
 import { Button } from '../ui/button';
@@ -49,6 +48,9 @@ const Ludo: React.FC = () => {
     yellow: 25,
     blue: 38,
   };
+
+  // Safe positions where tokens cannot be captured
+  const safePositions = [0, 8, 13, 21, 26, 34, 39, 47];
 
   // Initialize game
   useEffect(() => {
@@ -251,7 +253,7 @@ const Ludo: React.FC = () => {
     updatedPlayers[currentPlayerIndex].tokens = updatedTokens;
     
     // Check for captures (if token landed on an opponent's token)
-    if (!updatedToken.isFinished) {
+    if (!updatedToken.isFinished && !safePositions.includes(updatedToken.position)) {
       const captureResult = checkForCapture(updatedToken, updatedPlayers);
       updatedPlayers.forEach((player, index) => {
         updatedPlayers[index] = player;
@@ -313,8 +315,9 @@ const Ludo: React.FC = () => {
   };
 
   const checkForCapture = (token: Token, playersArray: Player[]): Player[] => {
-    if (token.position >= 57 || isTokenOnSafeSquare(token.position)) {
-      return playersArray; // No captures on final path or safe squares
+    // No captures on final path or safe squares
+    if (token.position >= 57 || safePositions.includes(token.position)) {
+      return playersArray;
     }
     
     // Check if any opponent tokens are at the same position
@@ -339,12 +342,6 @@ const Ludo: React.FC = () => {
     });
     
     return playersArray;
-  };
-
-  const isTokenOnSafeSquare = (position: number): boolean => {
-    // Define safe squares - starting positions for each color and every 8th square
-    const safeSquares = [0, 8, 13, 21, 26, 34, 39, 47];
-    return safeSquares.includes(position);
   };
 
   const canTokenMove = (token: Token, diceValue: number): boolean => {
@@ -385,76 +382,196 @@ const Ludo: React.FC = () => {
   };
 
   const getBestAIMove = (): number => {
-    const currentPlayer = players[currentPlayerIndex];
-    
-    // Priority 1: Finish a token if possible
-    for (let i = 0; i < availableMoves.length; i++) {
-      const tokenIndex = availableMoves[i];
-      const token = currentPlayer.tokens[tokenIndex];
-      const newPosition = calculateNewPosition(token, diceValue);
-      
-      if (newPosition === 62) {
-        return tokenIndex;
-      }
-    }
-    
-    // Priority 2: Capture an opponent's token
-    for (let i = 0; i < availableMoves.length; i++) {
-      const tokenIndex = availableMoves[i];
-      const token = currentPlayer.tokens[tokenIndex];
-      const newPosition = calculateNewPosition(token, diceValue);
-      
-      // Skip tokens that would end up on the final path
-      if (newPosition >= 57) continue;
-      
-      // Check if any opponent token is at the projected position
-      let canCapture = false;
-      players.forEach(player => {
-        if (player.color !== currentPlayer.color) {
-          player.tokens.forEach(opponentToken => {
-            if (opponentToken.position === newPosition && !opponentToken.isFinished && opponentToken.position !== -1) {
-              canCapture = true;
-            }
-          });
-        }
-      });
-      
-      if (canCapture) {
-        return tokenIndex;
-      }
-    }
-    
-    // Priority 3: Move a token out of home if possible
-    for (let i = 0; i < availableMoves.length; i++) {
-      const tokenIndex = availableMoves[i];
-      const token = currentPlayer.tokens[tokenIndex];
-      
-      if (token.position === -1 && diceValue === 6) {
-        return tokenIndex;
-      }
-    }
-    
-    // Priority 4: Move token furthest along
-    let furthestTokenIndex = -1;
-    let furthestPosition = -2;
-    
-    for (let i = 0; i < availableMoves.length; i++) {
-      const tokenIndex = availableMoves[i];
-      const token = currentPlayer.tokens[tokenIndex];
-      
-      if (token.position > furthestPosition) {
-        furthestPosition = token.position;
-        furthestTokenIndex = tokenIndex;
-      }
-    }
-    
-    // If we found a token, return its index
-    if (furthestTokenIndex !== -1) {
-      return furthestTokenIndex;
-    }
-    
-    // Fallback: Return the first available move, or -1 if none
-    return availableMoves.length > 0 ? availableMoves[0] : -1;
+    // ... keep existing code (getBestAIMove implementation)
+  };
+
+  // Improved board rendering for better Ludo structure
+  const renderLudoBoard = () => {
+    return (
+      <div className="ludo-board bg-white border border-gray-300 rounded-lg p-4">
+        {/* Top row with Green and Yellow homes */}
+        <div className="flex">
+          <div className="ludo-home-section bg-green-100 w-32 h-32 p-2 border border-gray-300 flex flex-col items-center">
+            <div className="text-xs font-bold mb-2">GREEN HOME</div>
+            <div className="grid grid-cols-2 gap-2">
+              {players.length > 0 && 
+                players[2].tokens.filter(t => t.position === -1).map((token) => (
+                  <div 
+                    key={`green-token-${token.id}`}
+                    onClick={() => handleTokenClick(token)}
+                    className={`w-8 h-8 rounded-full bg-game-green cursor-pointer ${
+                      availableMoves.includes(
+                        players[2].tokens.findIndex(t => t.id === token.id)
+                      ) && currentPlayerIndex === 2
+                      ? 'animate-pulse-glow ring-2 ring-white'
+                      : ''
+                    }`}
+                  />
+                ))
+              }
+            </div>
+            <div className="mt-auto text-xs">Player 3</div>
+          </div>
+          
+          <div className="ludo-center-path flex-1 flex flex-col">
+            {/* Top path */}
+            <div className="flex h-10">
+              {[...Array(6)].map((_, i) => (
+                renderBoardCell(18 + i)
+              ))}
+            </div>
+            
+            {/* Green finish path */}
+            <div className="flex justify-center h-12">
+              <div className="flex">
+                {[...Array(6)].map((_, i) => (
+                  <div 
+                    key={`green-finish-${i}`} 
+                    className="w-8 h-8 m-1 bg-green-100 border border-gray-200 flex items-center justify-center"
+                  >
+                    {renderFinishCell('green', 57 + i)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="ludo-home-section bg-yellow-100 w-32 h-32 p-2 border border-gray-300 flex flex-col items-center">
+            <div className="text-xs font-bold mb-2">YELLOW HOME</div>
+            <div className="grid grid-cols-2 gap-2">
+              {players.length > 0 && 
+                players[3].tokens.filter(t => t.position === -1).map((token) => (
+                  <div 
+                    key={`yellow-token-${token.id}`}
+                    onClick={() => handleTokenClick(token)}
+                    className={`w-8 h-8 rounded-full bg-game-yellow cursor-pointer ${
+                      availableMoves.includes(
+                        players[3].tokens.findIndex(t => t.id === token.id)
+                      ) && currentPlayerIndex === 3
+                      ? 'animate-pulse-glow ring-2 ring-white'
+                      : ''
+                    }`}
+                  />
+                ))
+              }
+            </div>
+            <div className="mt-auto text-xs">Player 4</div>
+          </div>
+        </div>
+        
+        {/* Middle row with left-center-right paths */}
+        <div className="flex">
+          {/* Left path (Blue side) */}
+          <div className="ludo-side-path w-10 flex flex-col">
+            {[...Array(6)].map((_, i) => (
+              renderBoardCell(47 - i)
+            ))}
+          </div>
+          
+          {/* Center area */}
+          <div className="ludo-center flex-1 bg-gray-100 flex items-center justify-center">
+            <div className="text-xl font-bold">LUDO</div>
+          </div>
+          
+          {/* Right path (Yellow side) */}
+          <div className="ludo-side-path w-10 flex flex-col">
+            {[...Array(6)].map((_, i) => (
+              renderBoardCell(25 + i)
+            ))}
+          </div>
+        </div>
+        
+        {/* Bottom row with Red and Blue homes */}
+        <div className="flex">
+          <div className="ludo-home-section bg-red-100 w-32 h-32 p-2 border border-gray-300 flex flex-col items-center">
+            <div className="text-xs font-bold mb-2">RED HOME</div>
+            <div className="grid grid-cols-2 gap-2">
+              {players.length > 0 && 
+                players[0].tokens.filter(t => t.position === -1).map((token) => (
+                  <div 
+                    key={`red-token-${token.id}`}
+                    onClick={() => handleTokenClick(token)}
+                    className={`w-8 h-8 rounded-full bg-game-red cursor-pointer ${
+                      availableMoves.includes(
+                        players[0].tokens.findIndex(t => t.id === token.id)
+                      ) && currentPlayerIndex === 0
+                      ? 'animate-pulse-glow ring-2 ring-white'
+                      : ''
+                    }`}
+                  />
+                ))
+              }
+            </div>
+            <div className="mt-auto text-xs">Player 1</div>
+          </div>
+          
+          <div className="ludo-center-path flex-1 flex flex-col">
+            {/* Red finish path */}
+            <div className="flex justify-center h-12">
+              <div className="flex">
+                {[...Array(6)].map((_, i) => (
+                  <div 
+                    key={`red-finish-${i}`} 
+                    className="w-8 h-8 m-1 bg-red-100 border border-gray-200 flex items-center justify-center"
+                  >
+                    {renderFinishCell('red', 57 + i)}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Bottom path */}
+            <div className="flex h-10">
+              {[...Array(6)].map((_, i) => (
+                renderBoardCell(5 - i)
+              ))}
+            </div>
+          </div>
+          
+          <div className="ludo-home-section bg-blue-100 w-32 h-32 p-2 border border-gray-300 flex flex-col items-center">
+            <div className="text-xs font-bold mb-2">BLUE HOME</div>
+            <div className="grid grid-cols-2 gap-2">
+              {players.length > 0 && 
+                players[1].tokens.filter(t => t.position === -1).map((token) => (
+                  <div 
+                    key={`blue-token-${token.id}`}
+                    onClick={() => handleTokenClick(token)}
+                    className={`w-8 h-8 rounded-full bg-blue-500 cursor-pointer ${
+                      availableMoves.includes(
+                        players[1].tokens.findIndex(t => t.id === token.id)
+                      ) && currentPlayerIndex === 1
+                      ? 'animate-pulse-glow ring-2 ring-white'
+                      : ''
+                    }`}
+                  />
+                ))
+              }
+            </div>
+            <div className="mt-auto text-xs">Player 2</div>
+          </div>
+        </div>
+        
+        {/* Bottom horizontal path (Blue) */}
+        <div className="flex justify-center mt-2">
+          <div className="flex">
+            {[...Array(6)].map((_, i) => (
+              renderBoardCell(39 + i)
+            ))}
+            {/* Blue finish path */}
+            <div className="flex">
+              {[...Array(6)].map((_, i) => (
+                <div 
+                  key={`blue-finish-${i}`} 
+                  className="w-8 h-8 bg-blue-100 border border-gray-200 flex items-center justify-center"
+                >
+                  {renderFinishCell('blue', 57 + i)}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderBoardCell = (position: number) => {
@@ -469,14 +586,20 @@ const Ludo: React.FC = () => {
       });
     });
     
+    const isSafeCell = safePositions.includes(position);
+    
     return (
       <div 
         key={`cell-${position}`}
-        className={`ludo-cell w-8 h-8 ${isTokenOnSafeSquare(position) ? 'bg-gray-100' : 'bg-white'}`}
+        className={`ludo-cell w-8 h-8 border border-gray-200 ${
+          isSafeCell ? 'bg-gray-100' : 'bg-white'
+        } ${isSafeCell ? 'safe-cell' : ''}`}
       >
         <div className="relative w-full h-full flex flex-wrap items-center justify-center">
+          {isSafeCell && <div className="absolute text-xs text-gray-400">✓</div>}
+          
           {tokensOnCell.length > 0 && (
-            <div className="flex flex-wrap gap-1 items-center justify-center">
+            <div className="flex flex-wrap gap-0.5 items-center justify-center">
               {tokensOnCell.map((token, index) => (
                 <div
                   key={`token-${token.color}-${token.id}-${index}`}
@@ -490,7 +613,9 @@ const Ludo: React.FC = () => {
                       players[currentPlayerIndex].tokens.findIndex(
                         t => t.id === token.id && t.color === token.color
                       )
-                    ) ? 'animate-pulse-glow' : ''
+                    ) && token.color === players[currentPlayerIndex].color
+                      ? 'animate-pulse-glow ring-1 ring-white'
+                      : ''
                   }`}
                   onClick={() => handleTokenClick(token)}
                 />
@@ -502,156 +627,25 @@ const Ludo: React.FC = () => {
     );
   };
 
-  const renderHomeArea = (color: LudoColor) => {
+  const renderFinishCell = (color: LudoColor, position: number) => {
     const player = players.find(p => p.color === color);
     if (!player) return null;
     
-    const homeTokens = player.tokens.filter(token => token.position === -1);
+    const tokensInFinish = player.tokens.filter(token => token.position === position);
     
     return (
-      <div className={`ludo-home w-24 h-24 ${
-        color === 'red' ? 'bg-red-100' :
-        color === 'blue' ? 'bg-blue-100' :
-        color === 'green' ? 'bg-green-100' :
-        'bg-yellow-100'
-      }`}>
-        <div className="flex flex-wrap items-center justify-center h-full">
-          {homeTokens.map(token => (
-            <div
-              key={`home-token-${token.color}-${token.id}`}
-              className={`w-5 h-5 m-1 rounded-full cursor-pointer ${
-                token.color === 'red' ? 'bg-game-red' :
-                token.color === 'blue' ? 'bg-blue-500' :
-                token.color === 'green' ? 'bg-game-green' :
-                'bg-game-yellow'
-              } ${
-                diceValue === 6 && token.color === players[currentPlayerIndex].color ? 'animate-pulse-glow' : ''
-              }`}
-              onClick={() => handleTokenClick(token)}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderFinishArea = (color: LudoColor) => {
-    const player = players.find(p => p.color === color);
-    if (!player) return null;
-    
-    const finishedTokens = player.tokens.filter(token => token.isFinished);
-    
-    return (
-      <div className={`w-8 h-8 bg-gray-200 flex items-center justify-center`}>
-        {finishedTokens.length > 0 && (
-          <div className="flex flex-wrap gap-0.5 items-center justify-center">
-            {finishedTokens.map((token, index) => (
-              <div
-                key={`finish-token-${token.color}-${token.id}-${index}`}
-                className={`w-3 h-3 rounded-full ${
-                  token.color === 'red' ? 'bg-game-red' :
-                  token.color === 'blue' ? 'bg-blue-500' :
-                  token.color === 'green' ? 'bg-game-green' :
-                  'bg-game-yellow'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // Simplified board layout for demonstration
-  const renderBoard = () => {
-    // This is a simplified representation - a full Ludo board would require a more complex layout
-    return (
-      <div className="flex flex-col">
-        <div className="flex">
-          {renderHomeArea('green')}
-          <div className="flex flex-col">
-            {renderBoardCell(13)}
-            {renderBoardCell(12)}
-            {renderBoardCell(11)}
-          </div>
-          <div className="flex flex-col">
-            {renderBoardCell(14)}
-            {renderFinishArea('green')}
-            {renderBoardCell(10)}
-          </div>
-          <div className="flex flex-col">
-            {renderBoardCell(15)}
-            {renderBoardCell(16)}
-            {renderBoardCell(9)}
-          </div>
-          {renderHomeArea('yellow')}
-        </div>
-        
-        <div className="flex">
-          <div className="flex flex-row">
-            {renderBoardCell(34)}
-            {renderBoardCell(33)}
-            {renderBoardCell(32)}
-          </div>
-          <div className="flex flex-col w-24">
-            <div className="flex">
-              {renderBoardCell(17)}
-              {renderBoardCell(18)}
-              {renderBoardCell(19)}
-            </div>
-            <div className="bg-gray-300 flex-grow flex items-center justify-center">
-              <span className="text-lg font-bold">LUDO</span>
-            </div>
-            <div className="flex">
-              {renderBoardCell(31)}
-              {renderBoardCell(30)}
-              {renderBoardCell(29)}
-            </div>
-          </div>
-          <div className="flex flex-row">
-            {renderBoardCell(20)}
-            {renderBoardCell(21)}
-            {renderBoardCell(22)}
-          </div>
-        </div>
-        
-        <div className="flex">
-          {renderHomeArea('red')}
-          <div className="flex flex-col">
-            {renderBoardCell(47)}
-            {renderBoardCell(46)}
-            {renderBoardCell(45)}
-          </div>
-          <div className="flex flex-col">
-            {renderBoardCell(0)}
-            {renderFinishArea('red')}
-            {renderBoardCell(44)}
-          </div>
-          <div className="flex flex-col">
-            {renderBoardCell(1)}
-            {renderBoardCell(2)}
-            {renderBoardCell(43)}
-          </div>
-          {renderHomeArea('blue')}
-        </div>
-        
-        <div className="flex mt-2">
-          <div className="flex flex-row space-x-2">
-            {renderBoardCell(3)}
-            {renderBoardCell(4)}
-            {renderBoardCell(5)}
-            {renderBoardCell(6)}
-            {renderBoardCell(7)}
-            {renderBoardCell(8)}
-            {renderFinishArea('blue')}
-            {renderBoardCell(42)}
-            {renderBoardCell(41)}
-            {renderBoardCell(40)}
-            {renderBoardCell(39)}
-            {renderBoardCell(38)}
-            {renderFinishArea('yellow')}
-          </div>
-        </div>
+      <div className="flex flex-wrap gap-0.5 items-center justify-center w-full h-full">
+        {tokensInFinish.map((token, index) => (
+          <div
+            key={`finish-token-${token.color}-${token.id}-${index}`}
+            className={`w-3 h-3 rounded-full ${
+              token.color === 'red' ? 'bg-game-red' :
+              token.color === 'blue' ? 'bg-blue-500' :
+              token.color === 'green' ? 'bg-game-green' :
+              'bg-game-yellow'
+            }`}
+          />
+        ))}
       </div>
     );
   };
@@ -660,7 +654,7 @@ const Ludo: React.FC = () => {
     <div className="flex flex-col md:flex-row gap-6 items-center md:items-start bg-white rounded-lg shadow-md p-6">
       <div>
         <h2 className="text-2xl font-bold mb-4 text-center">Ludo</h2>
-        {renderBoard()}
+        {renderLudoBoard()}
       </div>
       
       <div className="flex flex-col gap-4">
