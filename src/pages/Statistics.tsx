@@ -4,7 +4,9 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { BarChart, LineChart, PieChart } from '../components/ui/chart';
+import { BarChart } from '../components/charts/BarChart';
+import { LineChart } from '../components/charts/LineChart';
+import { PieChart } from '../components/charts/PieChart';
 import StatisticsCard from '../components/StatisticsCard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
@@ -64,36 +66,34 @@ const Statistics: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatisticsCard
+              gameId="total"
               title="Total Games"
-              value="450"
-              icon="gamepad"
-              trend="+12%"
-              trendDirection="up"
-              description="vs last month"
+              played={450}
+              won={217}
+              averageTime="6m 15s"
             />
             <StatisticsCard
-              title="Win Rate"
-              value="48.2%"
-              icon="trophy"
-              trend="+5.4%"
-              trendDirection="up"
-              description="vs last month"
+              gameId="tictactoe"
+              title="Tic-tac-toe"
+              played={150}
+              won={80}
+              averageTime="2m 15s"
             />
             <StatisticsCard
-              title="Total Play Time"
-              value="58h 23m"
-              icon="clock"
-              trend="-2.1%"
-              trendDirection="down"
-              description="vs last month"
+              gameId="chess"
+              title="Chess"
+              played={100}
+              won={45}
+              averageTime="15m 30s"
+              bestScore={1200}
+              scoreUnit="ELO"
             />
             <StatisticsCard
-              title="Avg. Game Duration"
-              value="7m 45s"
-              icon="timer"
-              trend="-0.5%"
-              trendDirection="down"
-              description="vs last month"
+              gameId="snakeladder"
+              title="Snake & Ladder"
+              played={80}
+              won={40}
+              averageTime="8m 45s"
             />
           </div>
           
