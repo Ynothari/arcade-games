@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Trophy, Users, Clock } from 'lucide-react';
+import { Gamepad2, Trophy, Users, Clock, ChevronRight, Star } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import GameAssistant from '../components/GameAssistant';
+import GameCard from '../components/GameCard';
 
 const Index: React.FC = () => {
   const games = [

@@ -382,10 +382,36 @@ const Ludo: React.FC = () => {
   };
 
   const getBestAIMove = (): number => {
-    // ... keep existing code (getBestAIMove implementation)
+    const currentPlayer = players[currentPlayerIndex];
+    let bestMoveIndex = -1;
+    
+    // Check for tokens that can finish
+    for (let i = 0; i < availableMoves.length; i++) {
+      const tokenIndex = availableMoves[i];
+      const token = currentPlayer.tokens[tokenIndex];
+      
+      // Calculate new position if this token moves
+      const newPosition = calculateNewPosition(token, diceValue);
+      
+      // Prioritize tokens that can finish
+      if (newPosition === 62) {
+        return tokenIndex;
+      }
+      
+      // Prioritize tokens that can leave home
+      if (token.position === -1 && diceValue === 6) {
+        bestMoveIndex = tokenIndex;
+      }
+    }
+    
+    // If no priority move found, select first available move
+    if (bestMoveIndex === -1 && availableMoves.length > 0) {
+      bestMoveIndex = availableMoves[0];
+    }
+    
+    return bestMoveIndex;
   };
 
-  // Improved board rendering for better Ludo structure
   const renderLudoBoard = () => {
     return (
       <div className="ludo-board bg-white border border-gray-300 rounded-lg p-4">
