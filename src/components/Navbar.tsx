@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <Gamepad2 className="h-7 w-7 text-game-primary" />
-          <span className="font-bold text-xl text-game-dark">MoodMatch Arcade</span>
+          <span className="font-bold text-xl text-game-dark">Arcade Games</span>
         </Link>
         
         <div className="hidden md:flex items-center gap-6">

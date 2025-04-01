@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import GameCard from '../components/GameCard';
-import MoodChatbot from '../components/MoodChatbot';
+import GameAssistant from '../components/MoodChatbot';
 
 const Index: React.FC = () => {
   const games = [
@@ -55,7 +55,7 @@ const Index: React.FC = () => {
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="container mx-auto px-4 relative z-10 text-white">
           <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">MoodMatch Arcade Games</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Arcade Games</h1>
             <p className="text-xl mb-8">Find the perfect game to match your mood. Play with AI or challenge your friends!</p>
             <div className="flex flex-wrap gap-4">
               <Link to="/games" className="btn-game">

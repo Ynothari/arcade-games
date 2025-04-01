@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Dice from '../Dice';
 import { Button } from '../ui/button';
@@ -192,22 +193,22 @@ const SnakeLadder: React.FC = () => {
             className={`snake-ladder-cell w-10 h-10 ${
               row % 2 === 0 ? col % 2 === 0 ? 'bg-game-soft/30' : 'bg-white' : 
               col % 2 === 0 ? 'bg-white' : 'bg-game-soft/30'
-            }`}
+            } border border-gray-200`}
           >
             <div className="relative w-full h-full flex items-center justify-center">
               <span className="text-xs font-medium text-gray-600">{cellNumber}</span>
               
-              {isSnakeHead && <div className="snake-head" />}
-              {isSnakeTail && <div className="snake-tail" />}
-              {isLadderBottom && <div className="ladder-step w-4" />}
-              {isLadderTop && <div className="ladder-step w-4" />}
+              {isSnakeHead && <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full" title="Snake Head" />}
+              {isSnakeTail && <div className="absolute top-0 left-0 w-3 h-3 bg-red-300 rounded-full" title="Snake Tail" />}
+              {isLadderBottom && <div className="absolute bottom-0 left-0 w-3 h-3 bg-yellow-500 rounded-full" title="Ladder Bottom" />}
+              {isLadderTop && <div className="absolute bottom-0 right-0 w-3 h-3 bg-yellow-300 rounded-full" title="Ladder Top" />}
 
               {/* Players on this cell */}
               <div className="absolute flex gap-1">
                 {playersOnCell.map(player => (
                   <div 
                     key={`player-${player.id}-cell-${cellNumber}`}
-                    className={`game-token ${player.color} animate-token-jump z-10`}
+                    className={`w-4 h-4 rounded-full ${player.color} shadow-md`}
                   ></div>
                 ))}
               </div>
@@ -223,10 +224,10 @@ const SnakeLadder: React.FC = () => {
     }
     
     return (
-      <div className="game-board-container">
+      <div className="game-board-container relative">
         {/* Render snakes */}
         {snakes.map((snake, index) => (
-          <svg key={`snake-${index}`} className="snake-path absolute top-0 left-0 w-full h-full z-5 pointer-events-none">
+          <svg key={`snake-${index}`} className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
             <path
               d={`M ${getCoordinatesForCell(snake.head).x} ${getCoordinatesForCell(snake.head).y} 
                   Q ${(getCoordinatesForCell(snake.head).x + getCoordinatesForCell(snake.tail).x) / 2 + 20} 
@@ -241,7 +242,7 @@ const SnakeLadder: React.FC = () => {
         
         {/* Render ladders */}
         {ladders.map((ladder, index) => (
-          <svg key={`ladder-${index}`} className="ladder-path absolute top-0 left-0 w-full h-full z-5 pointer-events-none">
+          <svg key={`ladder-${index}`} className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
             <line
               x1={getCoordinatesForCell(ladder.bottom).x}
               y1={getCoordinatesForCell(ladder.bottom).y}
@@ -254,7 +255,9 @@ const SnakeLadder: React.FC = () => {
           </svg>
         ))}
         
-        {rows}
+        <div className="relative z-10">
+          {rows}
+        </div>
       </div>
     );
   };
@@ -313,7 +316,7 @@ const SnakeLadder: React.FC = () => {
             <div className={`flex items-center gap-2 p-2 rounded-md ${
               currentPlayerIndex === 0 ? 'bg-game-primary/10' : 'bg-game-orange/10'
             }`}>
-              <div className={`game-token ${players[currentPlayerIndex].color}`}></div>
+              <div className={`w-4 h-4 rounded-full ${players[currentPlayerIndex].color}`}></div>
               <span className="font-medium">{players[currentPlayerIndex].name}</span>
               {isTokenMoving && <span className="text-xs ml-auto">Moving...</span>}
             </div>
@@ -338,7 +341,7 @@ const SnakeLadder: React.FC = () => {
           
           {players.map(player => (
             <div key={player.id} className="flex items-center gap-2 mb-2">
-              <div className={`game-token ${player.color}`}></div>
+              <div className={`w-4 h-4 rounded-full ${player.color}`}></div>
               <div className="flex-1">
                 <div className="text-sm font-medium">{player.name}</div>
                 <div className="text-xs text-gray-500">Position: {player.position}</div>
@@ -351,7 +354,7 @@ const SnakeLadder: React.FC = () => {
           <div className="bg-game-primary/10 p-4 rounded-lg text-center">
             <h3 className="font-bold mb-2">Game Over!</h3>
             <div className="flex items-center justify-center gap-2">
-              <div className={`game-token ${winner.color}`}></div>
+              <div className={`w-4 h-4 rounded-full ${winner.color}`}></div>
               <span className="font-medium">{winner.name} wins!</span>
             </div>
           </div>
