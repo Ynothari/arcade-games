@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				game: {
+					'primary': '#9b87f5',
+					'secondary': '#7E69AB',
+					'dark': '#1A1F2C',
+					'light': '#D6BCFA',
+					'soft': '#E5DEFF',
+					'blue': '#D3E4FD',
+					'vivid': '#8B5CF6',
+					'orange': '#F97316',
+					'red': '#ea384c',
+					'green': '#10B981',
+					'yellow': '#FBBF24',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +98,39 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'dice-roll': {
+					'0%': { transform: 'rotateX(0deg) rotateY(0deg)' },
+					'25%': { transform: 'rotateX(90deg) rotateY(90deg)' },
+					'50%': { transform: 'rotateX(180deg) rotateY(180deg)' },
+					'75%': { transform: 'rotateX(270deg) rotateY(270deg)' },
+					'100%': { transform: 'rotateX(360deg) rotateY(360deg)' }
+				},
+				'token-jump': {
+					'0%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' },
+					'100%': { transform: 'translateY(0px)' }
+				},
+				'pulse-glow': {
+					'0%, 100%': { boxShadow: '0 0 8px 2px rgba(155, 135, 245, 0.6)' },
+					'50%': { boxShadow: '0 0 16px 4px rgba(155, 135, 245, 0.8)' },
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'dice-roll': 'dice-roll 0.5s ease-out',
+				'token-jump': 'token-jump 0.5s ease-in-out',
+				'pulse-glow': 'pulse-glow 2s infinite ease-in-out',
+				'float': 'float 3s infinite ease-in-out'
+			},
+			backgroundImage: {
+				'hero-pattern': "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000&h=600&bg=f8fafc')",
+				'game-gradient': 'linear-gradient(135deg, #9b87f5 0%, #D6BCFA 100%)',
 			}
 		}
 	},
